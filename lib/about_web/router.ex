@@ -7,6 +7,12 @@ defmodule AboutWeb.Router do
 
   scope "/api", AboutWeb do
     pipe_through :api
+
+    resources(
+      "/translate",
+      TurengController,
+      only: [:index]
+    )
   end
 
   # Enables the Swoosh mailbox preview in development.
