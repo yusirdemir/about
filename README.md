@@ -1,7 +1,8 @@
 #### Installation
 
-As a first step, install;
-* Elixir: 1.14.0-otp-25 version. 
+As a first step, install this requirements;
+* elixir 1.14.0-otp-25 version. 
+* ffplay
 
 Run the following command.
 ```elixir
