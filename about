@@ -63,7 +63,28 @@ rows =
         ]},
        {"td", _, _}
      ]} ->
-      [index, category, turkish, english, type]
+      index = if String.length(index) > 32, do: String.slice(index, 0..32) <> "...", else: index
+
+      category =
+        if String.length(category) > 32,
+          do: String.slice(category, 0..32) <> "...",
+          else: category
+
+      turkish =
+        if String.length(turkish) > 32, do: String.slice(turkish, 0..32) <> "...", else: turkish
+
+      english =
+        if String.length(english) > 32, do: String.slice(english, 0..32) <> "...", else: english
+
+      type = if String.length(type) > 32, do: String.slice(type, 0..32) <> "...", else: type
+
+      [
+        index,
+        category,
+        turkish,
+        english,
+        type
+      ]
 
     {_, _,
      [
@@ -77,7 +98,28 @@ rows =
        {"td", _, [{"a", _, [turkish]}]},
        {"td", _, _}
      ]} ->
-      [index, category, turkish, english, type]
+      index = if String.length(index) > 32, do: String.slice(index, 0..32) <> "...", else: index
+
+      category =
+        if String.length(category) > 32,
+          do: String.slice(category, 0..32) <> "...",
+          else: category
+
+      turkish =
+        if String.length(turkish) > 32, do: String.slice(turkish, 0..32) <> "...", else: turkish
+
+      english =
+        if String.length(english) > 32, do: String.slice(english, 0..32) <> "...", else: english
+
+      type = if String.length(type) > 32, do: String.slice(type, 0..32) <> "...", else: type
+
+      [
+        index,
+        category,
+        turkish,
+        english,
+        type
+      ]
 
     _ ->
       nil
