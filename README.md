@@ -3,6 +3,11 @@
 As a first step, install;
 * Elixir: 1.14.0-otp-25 version. 
 
+Run the following command.
+```elixir
+chmod a+x ./about
+```
+
 Open the ~/.bashrc file and add the following line at the bottom.
 ```elixir
 alias about='/path/to/about/file'
@@ -32,3 +37,14 @@ For maximum of 100 queries
 about --q desktop --l en --n 100
 ```
 ![image](https://user-images.githubusercontent.com/62894501/194728119-9fb684cc-f6a1-4285-bfe7-49faba0b39d2.png)
+
+For sound,
+Available Options: [us, uk, au]
+```elixir
+about --q desktop --l en --n 100 --s us
+```
+
+For sound number of repetitions
+```elixir
+about --q desktop --l en --n 100 --s us --a 10
+```

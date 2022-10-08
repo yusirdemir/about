@@ -1,15 +1,21 @@
 #! /usr/bin/env elixir
 
-Mix.install([:crawly, :floki, :table_rex])
+Mix.install([:crawly, :floki, :table_rex, :httpoison])
 
 cli_args = System.argv()
-supported_cli_args = [l: :string, q: :string, n: :integer]
+supported_cli_args = [l: :string, q: :string, n: :integer, s: :string, a: :integer]
+
+supported_audio_language = [
+  us: "turengVoiceENTRENus",
+  uk: "turengVoiceENTRENuk",
+  au: "turengVoiceENTRENau"
+]
 
 args =
   cli_args
   |> OptionParser.parse(strict: supported_cli_args)
   |> case do
-    {parsed_cli_args, [], []} ->
+    {parsed_cli_args, _, _} ->
       Map.new(parsed_cli_args)
 
     _ ->
@@ -17,10 +23,13 @@ args =
   end
 
 l = Map.get(args, :l, "tr")
+s = Map.get(args, :s, nil)
+a = Map.get(args, :a, nil)
 n = Map.get(args, :n, nil)
 %{q: q} = args
 
 n = if n in 1..100, do: n, else: 9
+a = if a in 1..10, do: a, else: 3
 
 url =
   case l do
@@ -43,31 +52,31 @@ rows =
   |> Floki.find(".searchResultsTable tr")
   |> Enum.map(fn
     {_, _,
-      [
-        {"td", _, [index]},
-        {"td", _, [category]},
-        {"td", _, [{"a", _, [turkish]}]},
-        {"td", _,
+     [
+       {"td", _, [index]},
+       {"td", _, [category]},
+       {"td", _, [{"a", _, [turkish]}]},
+       {"td", _,
         [
           {"a", _, [english]},
           {"i", _, [type]}
         ]},
-        {"td", _, _}
-      ]} ->
+       {"td", _, _}
+     ]} ->
       [index, category, turkish, english, type]
 
     {_, _,
-      [
-        {"td", _, [index]},
-        {"td", _, [category]},
-        {"td", _,
+     [
+       {"td", _, [index]},
+       {"td", _, [category]},
+       {"td", _,
         [
           {"a", _, [english]},
           {"i", _, [type]}
         ]},
-        {"td", _, [{"a", _, [turkish]}]},
-        {"td", _, _}
-      ]} ->
+       {"td", _, [{"a", _, [turkish]}]},
+       {"td", _, _}
+     ]} ->
       [index, category, turkish, english, type]
 
     _ ->
@@ -76,17 +85,101 @@ rows =
   |> Enum.filter(&(&1 != nil))
   |> Enum.slice(0..n)
 
-header =
+unless Enum.count(rows) > 0 do
   case l do
     "en" ->
-      ["Index", "Category", "Turkish", "English", "Type"]
+      "I couldn't find any results"
+      |> IO.puts()
 
     "tr" ->
-      ["Sıra", "Kategori", "Türkçe", "İngilizce", "Tip"]
+      "Herhangi bir sonuç bulunamadı"
+      |> IO.puts()
 
     _ ->
       raise "Unknown language were provided"
   end
+else
+  header =
+    case l do
+      "en" ->
+        ["Index", "Category", "Turkish", "English", "Type"]
 
-TableRex.quick_render!(rows, header)
-|> IO.puts
+      "tr" ->
+        ["Sıra", "Kategori", "Türkçe", "İngilizce", "Tip"]
+
+      _ ->
+        raise "Unknown language were provided"
+    end
+
+  TableRex.quick_render!(rows, header)
+  |> IO.puts()
+end
+
+case s do
+  nil ->
+    nil
+
+  _ ->
+    s = supported_audio_language |> Keyword.get(String.to_existing_atom(s))
+
+    path =
+      document
+      |> Floki.find("audio")
+      |> Enum.map(fn
+        {"audio", [{_, ^s}, _],
+         [
+           {_,
+            [
+              {"src", src},
+              _
+            ], _}
+         ]} ->
+          src
+
+        _ ->
+          nil
+      end)
+      |> Enum.filter(&(&1 != nil))
+      |> Enum.at(0)
+
+    case path do
+      nil ->
+        nil
+
+      _ ->
+        path = Path.split(path)
+
+        path =
+          if Enum.at(path, 0) == "/" do
+            [_ | p] = path
+            p = Path.join(p)
+            Path.join("https://", p)
+          else
+            path = Path.join(path)
+            Path.join("https://", path)
+          end
+
+        %_{body: body} = HTTPoison.get!(path)
+
+        File.write!("/tmp/sound.mp3", body)
+
+        Enum.each(
+          1..a,
+          fn x ->
+            System.cmd("ffplay", [
+              "/tmp/sound.mp3",
+              "-nodisp",
+              "-nostats",
+              "-hide_banner",
+              "-autoexit",
+              "-loglevel",
+              "error"
+            ])
+
+            unless x == a, do: :timer.sleep(1000)
+          end
+        )
+
+        File.rm!("/tmp/sound.mp3")
+    end
+end
