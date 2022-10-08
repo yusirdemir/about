@@ -1,18 +1,43 @@
-# About
+#### Requirements
 
-To start your Phoenix server:
+* Elixir: 1.14.0
+* OTP: 25.0
 
-  * Install dependencies with `mix deps.get`
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+## Quick Start
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+Run commands in the folder where the about script is.
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+Example Queries
 
-## Learn more
+The following query returns the translation of the given text:
+```elixir
+./about --q desktop
+```
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+For English response
+```elixir
+./about --q desktop --l en
+```
+
+For maximum of 100 queries
+```elixir
+./about --q desktop --l en --n 100
+```
+
+## Roadmap/Contributing
+
+First off, welcome & thanks!
+
+We use the Github Issues tracker.
+
+If you have found something wrong, please raise an issue.
+
+If you'd like to contribute, check the issues to see where you can help.
+
+Contributions are welcome from anyone at any time but if the piece of work is
+significant in size, please raise an issue first to avoid instances of wasted
+work.
+
+## License
+
+MIT. See the [full license](LICENSE).
