@@ -6,12 +6,12 @@ As a first step, install this requirements;
 
 Run the following command.
 ```elixir
-chmod a+x ./about
+chmod a+x ./about.ex
 ```
 
 Open the ~/.bashrc file and add the following line at the bottom.
 ```elixir
-alias about='/path/to/about/file'
+alias about='/path/to/about/file/about.ex'
 ```
 Then save the change by running the following command.
 ```elixir
