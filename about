@@ -1,0 +1,92 @@
+#! /usr/bin/env elixir
+
+Mix.install([:crawly, :floki, :table_rex])
+
+cli_args = System.argv()
+supported_cli_args = [l: :string, q: :string, n: :integer]
+
+args =
+  cli_args
+  |> OptionParser.parse(strict: supported_cli_args)
+  |> case do
+    {parsed_cli_args, [], []} ->
+      Map.new(parsed_cli_args)
+
+    _ ->
+      raise "Invalid arguments were provided"
+  end
+
+l = Map.get(args, :l, "tr")
+n = Map.get(args, :n, nil)
+%{q: q} = args
+
+n = if n in 1..100, do: n, else: 9
+
+url =
+  case l do
+    "en" ->
+      "https://tureng.com/en/turkish-english/#{q}"
+
+    "tr" ->
+      "https://tureng.com/tr/turkce-ingilizce/#{q}"
+
+    _ ->
+      raise "Unknown language were provided"
+  end
+
+response = Crawly.fetch(url)
+
+{:ok, document} = Floki.parse_document(response.body)
+
+rows =
+  document
+  |> Floki.find(".searchResultsTable tr")
+  |> Enum.map(fn
+    {_, _,
+      [
+        {"td", _, [index]},
+        {"td", _, [category]},
+        {"td", _, [{"a", _, [turkish]}]},
+        {"td", _,
+        [
+          {"a", _, [english]},
+          {"i", _, [type]}
+        ]},
+        {"td", _, _}
+      ]} ->
+      [index, category, turkish, english, type]
+
+    {_, _,
+      [
+        {"td", _, [index]},
+        {"td", _, [category]},
+        {"td", _,
+        [
+          {"a", _, [english]},
+          {"i", _, [type]}
+        ]},
+        {"td", _, [{"a", _, [turkish]}]},
+        {"td", _, _}
+      ]} ->
+      [index, category, turkish, english, type]
+
+    _ ->
+      nil
+  end)
+  |> Enum.filter(&(&1 != nil))
+  |> Enum.slice(0..n)
+
+header =
+  case l do
+    "en" ->
+      ["Index", "Category", "Turkish", "English", "Type"]
+
+    "tr" ->
+      ["Sıra", "Kategori", "Türkçe", "İngilizce", "Tip"]
+
+    _ ->
+      raise "Unknown language were provided"
+  end
+
+TableRex.quick_render!(rows, header)
+|> IO.puts
