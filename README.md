@@ -32,21 +32,3 @@ For maximum of 100 queries
 about --q desktop --l en --n 100
 ```
 ![image](https://user-images.githubusercontent.com/62894501/194728119-9fb684cc-f6a1-4285-bfe7-49faba0b39d2.png)
-
-## Roadmap/Contributing
-
-First off, welcome & thanks!
-
-We use the Github Issues tracker.
-
-If you have found something wrong, please raise an issue.
-
-If you'd like to contribute, check the issues to see where you can help.
-
-Contributions are welcome from anyone at any time but if the piece of work is
-significant in size, please raise an issue first to avoid instances of wasted
-work.
-
-## License
-
-MIT. See the [full license](LICENSE).
